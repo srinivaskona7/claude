@@ -20,13 +20,26 @@ document.addEventListener('DOMContentLoaded', () => {
               if (options.stream) {
                   const response = await puter.ai.chat(prompt, options);
                   let fullText = '';
+                  // Check if response is iterable and has content
+                  if (!response) {
+                      output.innerHTML = `<p>No response received. Please try again.</p>`;
+                      return;
+                  }
                   for await (const part of response) {
                       fullText += part?.text || '';
                       renderOutput(fullText);
                   }
+                  if (!fullText) {
+                      output.innerHTML = `<p>No content generated for this prompt.</p>`;
+                  }
               } else {
                   const response = await puter.ai.chat(prompt, options);
-                  renderOutput(response);
+                  // Check if the response exists before rendering
+                  if (response && response.text) {
+                      renderOutput(response.text);
+                  } else {
+                      output.innerHTML = `<p>No content generated for this prompt.</p>`;
+                  }
               }
           } catch (error) {
               output.innerHTML = `<p>Error: ${error.message}</p>`;
@@ -82,4 +95,3 @@ document.addEventListener('DOMContentLoaded', () => {
           // Handle images: styling is already in CSS
       }
   });
-  
